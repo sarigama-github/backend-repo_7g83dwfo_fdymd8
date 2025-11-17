@@ -8,17 +8,18 @@ Each Pydantic model represents a collection in your database.
 Model name is converted to lowercase for the collection name:
 - User -> "user" collection
 - Product -> "product" collection
-- BlogPost -> "blogs" collection
+- BlogPost -> "blogpost" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
+from datetime import datetime
 
-# Example schemas (replace with your own):
+# Example schemas (kept for reference):
 
 class User(BaseModel):
     """
-    Users collection schema
+    Example users collection schema
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
@@ -29,7 +30,7 @@ class User(BaseModel):
 
 class Product(BaseModel):
     """
-    Products collection schema
+    Example products collection schema
     Collection name: "product" (lowercase of class name)
     """
     title: str = Field(..., description="Product title")
@@ -38,11 +39,43 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Application schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class AuthUser(BaseModel):
+    """
+    Auth users collection schema
+    Collection name: "authuser"
+    Stores password as a salted hash
+    """
+    name: str = Field(..., description="Full name")
+    email: EmailStr
+    password_hash: str
+    salt: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+class BlogPost(BaseModel):
+    """
+    Blog posts collection schema
+    Collection name: "blogpost"
+    """
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: str
+    tags: List[str] = []
+    cover_image: Optional[str] = None
+    published: bool = True
+    published_at: Optional[datetime] = None
+    author: Optional[str] = None
+
+class ContactMessage(BaseModel):
+    """
+    Contact messages collection schema
+    Collection name: "contactmessage"
+    """
+    name: str
+    email: EmailStr
+    message: str
+    status: str = Field("new", description="new|read|replied")
+    submitted_at: Optional[datetime] = None
